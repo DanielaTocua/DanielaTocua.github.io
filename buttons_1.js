@@ -2,6 +2,7 @@ var played = 0
 var wins = 0
 var playedElement = document.getElementById("played")
 var winsElement = document.getElementById("wins")
+var mainMsg = document.getElementById("mainMsg")
 var audio = new Audio('coin_get.mp3');
 
 
@@ -71,6 +72,8 @@ function buttonPressed(button){
 
         }
         series = Math.floor(played / 25) // actualiza el número de serie       
+    } else {
+        mainMsg.innerHTML= "Finalizado"
     }
 }
     
