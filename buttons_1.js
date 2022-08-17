@@ -5,7 +5,9 @@ var winsElement = document.getElementById("wins")
 var mainMsg = document.getElementById("mainMsg")
 var audio = new Audio('coin_get.mp3');
 
-
+const SERIES_LIMIT = 13
+const PLAYED_LIMIT = 25
+const PRESSED_LIMIT = 7
 //Round Behaviour
 const playedLabel = "Rondas Jugadas: "
 const winsLabel = "Puntos Ganados: "
@@ -15,12 +17,12 @@ const buttonImages = ["images/1.png" , "images/2.png" , "images/3.png"]
 var orangeButtons = []
 var greenButtons = []
 function buttonPressed(button){
-    if (series < 13){
+    if (series < SERIES_LIMIT){
 
-        if (series < 10){
+        if (series < SERIES_LIMIT-3){
 
         pressed +=1
-        if (pressed == 7){
+        if (pressed == PRESSED_LIMIT){
             pressed = 0
             played +=1
             if (Math.random() < 0.5){
@@ -37,10 +39,10 @@ function buttonPressed(button){
             }
             
         }
-        } else if (series < 12){
+        } else if (series < SERIES_LIMIT -1){
         //lose
             pressed +=1
-            if (pressed == 7){
+            if (pressed == PRESSED_LIMIT){
                 pressed = 0
                 played +=1
                 //playedElement.innerHTML=playedLabel.concat(played)
@@ -52,7 +54,7 @@ function buttonPressed(button){
             //wins
 
             pressed +=1
-            if (pressed == 7){
+            if (pressed == PRESSED_LIMIT){
                 //winned
                 pressed = 0
                 played +=1
@@ -71,7 +73,7 @@ function buttonPressed(button){
             }
 
         }
-        series = Math.floor(played / 25) // actualiza el número de serie       
+        series = Math.floor(played / PLAYED_LIMIT) // actualiza el número de serie       
     } else {
         mainMsg.innerHTML= "Finalizado"
     }
