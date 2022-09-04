@@ -66,6 +66,6 @@ La precisión entonces de nuestro ciclo while es de:
 
 A continuación podemos ver algunas gráficas n vs tiempo de ejecución
 
-![Ejemplo 1](taller1_pictures/graph1.png)
+![Ejemplo 1](taller1_pictures/graph1.jpg)
 
-![Ejemplo 1](taller1_pictures/graph2.png)
+![Ejemplo 1](taller1_pictures/graph2.jpg)
