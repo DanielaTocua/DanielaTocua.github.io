@@ -64,8 +64,11 @@ La precisión entonces de nuestro ciclo while es de:
 
 > O(log(n)) + O(1) = O(log(n))
 
+### Gráficas
 A continuación podemos ver algunas gráficas n vs tiempo de ejecución
 
 ![Ejemplo 1](taller1_pictures/graph1.jpg)
 
 ![Ejemplo 1](taller1_pictures/graph2.jpg)
+
+Estas gráficas describen un comportamiento logarítmico del tiempo de ejecución con respecto a los tamaños de entrada n. 
