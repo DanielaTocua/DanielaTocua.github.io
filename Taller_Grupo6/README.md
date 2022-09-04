@@ -62,7 +62,7 @@ Esto último requiere O(log(&epsilon;)) => - log(0.0001)) = 13 iteraciones. Como
 
 La precisión entonces de nuestro ciclo while es de: 
 
-> *O(log(n)) + O(k) = O(log(1))*
+> O(log(n)) + O(1) = O(log(n))
 
 A continuación podemos ver algunas gráficas n vs tiempo de ejecución
 
