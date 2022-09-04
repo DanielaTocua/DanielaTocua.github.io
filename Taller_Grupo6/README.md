@@ -45,11 +45,16 @@ A continuación, un pequeño ejemplo:
 
 Para la función 2x - 0.0002 se tiene la raíz x = 0.0001. 
 Si tenemos el intervalo [0,8]:
-![Ejemplo 1](../taller1_pictures/img1)
+![Ejemplo 1](taller1_pictures/img1.png)
 Hasta el momento, se han tenido tenido que hacer O(log(n)) => log(8) = 3  iteraciones del ciclo while. Pero se requiere cumplir con la precisión dada. (epsilon; = 0.0001)
-
+![Ejemplo 1](taller1_pictures/img2.png)
 Esto último requiere O(log(&epsilon;)) => - log(0.0001)) = 13 iteraciones. Como nuestra precisión es constante, esto será O(1).
 
 La precisión entonces de nuestro ciclo while es de: 
 
 > O(log(n)) + O(k) = O(log(n))
+
+A continuación podemos ver algunas gráficas n vs tiempo de ejecución
+![Ejemplo 1](taller1_pictures/graph1.PNG)
+
+![Ejemplo 1](taller1_pictures/graph2.PNG)
