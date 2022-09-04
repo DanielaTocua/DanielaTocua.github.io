@@ -39,14 +39,23 @@ Para n = abs(b-a), es decir, el tamaño del intervalo, la complejidad viene dada
 
 ### Detalles
 **¿Por qué O(log(n))?**
+
 Este es un algoritmo del tipo *Divide y vencerás*. En este caso dividimos el problema (dónde está la raíz en un intervalo de tamaño n) a un subproblema de menor tamaño (dónde está la raíz en un intervalo de tamaño n/2) , descartando la mitad del intervalo.
+
 
 A continuación, un pequeño ejemplo:
 
+
 Para la función 2x - 0.0002 se tiene la raíz x = 0.0001. 
 Si tenemos el intervalo [0,8]:
+
+
 ![Ejemplo 1](taller1_pictures/img1.jpg)
+
+
 Hasta el momento, se han tenido tenido que hacer O(log(n)) => log(8) = 3  iteraciones del ciclo while. Pero se requiere cumplir con la precisión dada. (epsilon; = 0.0001)
+
+
 ![Ejemplo 1](taller1_pictures/img2.jpg)
 Esto último requiere O(log(&epsilon;)) => - log(0.0001)) = 13 iteraciones. Como nuestra precisión es constante, esto será O(1).
 
