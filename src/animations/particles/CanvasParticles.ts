@@ -90,7 +90,7 @@ export class CanvasParticles {
 
 	/** Animates the particles. */
 	animate(): void {
-		const targetFPS = 20;
+		const targetFPS = 24;
 		const interval = 1000 / targetFPS;
 		let lastTime = 0;
 
