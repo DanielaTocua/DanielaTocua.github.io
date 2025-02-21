@@ -1,4 +1,4 @@
-import { Particle } from "./particles";
+import { Particle } from "./Particle";
 
 export class CanvasParticles {
 	canvas: HTMLCanvasElement;
