@@ -1,6 +1,7 @@
+import { CanvasParticles } from "./animations/particles/CanvasParticles";
+
 document.addEventListener("DOMContentLoaded", () => {
-	const heading = document.querySelector("h1");
-	if (heading) {
-		heading.textContent = "Hello, TypeScript with Vite!";
-	}
+	const canvas = document.createElement("canvas");
+	document.body.appendChild(canvas);
+	new CanvasParticles(canvas);
 });
