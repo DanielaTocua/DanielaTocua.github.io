@@ -9,6 +9,7 @@ export class CanvasParticles {
 	maxDistance = 100; // Maximum distance for drawing lines
 	cursorX = 0;
 	cursorY = 0;
+    clicked = false;
 
 	/** The constructor initializes the canvas and particles, and sets up the resize event listener. */
 	constructor(canvas: HTMLCanvasElement) {
@@ -26,6 +27,11 @@ export class CanvasParticles {
 				this.cursorParticle.y = this.cursorY;
 			}
 		});
+
+        // Listen for mouse click
+        this.canvas.addEventListener("click", () => {
+            this.clicked = true;
+        });
 	}
 
 	/** Initializes the canvas and particles. */
@@ -61,10 +67,11 @@ export class CanvasParticles {
 
 		this.particles.forEach((particle) => {
 			particle.update(this.ctx);
-			particle.draw(this.ctx);
+			particle.draw(this.ctx);            
 		});
 
 		this.drawLines();
+        this.clicked = false;
 		setTimeout(() => {
 			requestAnimationFrame(() => this.animate());
 		}, 1000 / 18);
@@ -78,6 +85,11 @@ export class CanvasParticles {
 			const distanceToCursor = Math.sqrt(
 				dxCursor * dxCursor + dyCursor * dyCursor,
 			);
+            if (this.clicked && distanceToCursor < this.maxDistance) {
+                const angle = Math.atan2(dyCursor, dxCursor);
+                this.particles[i].speedX = Math.cos(angle) * 1.5;
+                this.particles[i].speedY = Math.sin(angle) * 1.5;
+            }
 			// If the particle is close to the cursor, draw a line
 			if (distanceToCursor < this.maxDistance) {
 				for (let j = i + 1; j < this.particles.length; j++) {
