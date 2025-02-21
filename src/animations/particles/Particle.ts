@@ -8,12 +8,12 @@ export class Particle {
 	constructor(ctx: CanvasRenderingContext2D) {
 		this.x = Math.random() * ctx.canvas.width;
 		this.y = Math.random() * ctx.canvas.height;
-		this.size = Math.random()  + 1; // Particle size
-		this.speedX = (Math.random() - 0.5)*2;
-		this.speedY = (Math.random() - 0.5)*2;
+		this.size = Math.random() + 1; // Particle size
+		this.speedX = (Math.random() - 0.5) * 2;
+		this.speedY = (Math.random() - 0.5) * 2;
 	}
 
-	update(ctx:CanvasRenderingContext2D): void {
+	update(ctx: CanvasRenderingContext2D): void {
 		this.x += this.speedX;
 		this.y += this.speedY;
 
@@ -22,7 +22,7 @@ export class Particle {
 		if (this.y <= 0 || this.y >= ctx.canvas.height) this.speedY *= -1;
 	}
 
-	draw(ctx:CanvasRenderingContext2D): void {
+	draw(ctx: CanvasRenderingContext2D): void {
 		ctx.fillStyle = "rgb(216, 149, 248)";
 		ctx.beginPath();
 		ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
