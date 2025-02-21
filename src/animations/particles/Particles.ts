@@ -9,8 +9,8 @@ export class Particle {
 		this.x = Math.random() * ctx.canvas.width;
 		this.y = Math.random() * ctx.canvas.height;
 		this.size = Math.random()  + 1; // Particle size
-		this.speedX = (Math.random() - 0.5)*3;
-		this.speedY = (Math.random() - 0.5)*3;
+		this.speedX = (Math.random() - 0.5)*2;
+		this.speedY = (Math.random() - 0.5)*2;
 	}
 
 	update(ctx:CanvasRenderingContext2D): void {

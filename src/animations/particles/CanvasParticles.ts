@@ -6,7 +6,7 @@ export class CanvasParticles {
 	particles: Particle[] = [];
 	cursorParticle: Particle | null = null;
 	numParticles = 200; // Number of particles
-	maxDistance = 100; // Maximum distance for drawing lines
+	maxDistanceSquared = 100*100; // Maximum distance for drawing lines
 	cursorX = 0;
 	cursorY = 0;
     clicked = false;
@@ -57,63 +57,71 @@ export class CanvasParticles {
 	/** Resizes the canvas and reinitializes the particles. */
 	resizeCanvas(): void {
 		this.canvas.width = window.innerWidth;
-		this.canvas.height = window.innerHeight;
-		this.init();
+        this.canvas.height = window.innerHeight;
+        this.particles.forEach(particle => {
+            particle.x = Math.random() * this.canvas.width;
+            particle.y = Math.random() * this.canvas.height;
+        });
 	}
 
 	/** Animates the particles. */
 	animate(): void {
-		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		const targetFPS = 20; 
+    const interval = 1000 / targetFPS;
+    let lastTime = 0;
 
-		this.particles.forEach((particle) => {
-			particle.update(this.ctx);
-			particle.draw(this.ctx);            
-		});
+    const loop = (currentTime: number) => {
+        if (currentTime - lastTime >= interval) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-		this.drawLines();
-        this.clicked = false;
-		setTimeout(() => {
-			requestAnimationFrame(() => this.animate());
-		}, 1000 / 18);
+            this.particles.forEach((particle) => {
+                particle.update(this.ctx);
+                particle.draw(this.ctx);
+            });
+
+            this.drawLines();
+            this.clicked = false;
+
+            lastTime = currentTime; // Update the last render time
+        }
+        requestAnimationFrame(loop);
+    };
+
+    requestAnimationFrame(loop);
 	}
 
 	/** Draws lines between nearby particles. */
 	drawLines(): void {
 		for (let i = 0; i < this.particles.length; i++) {
-			const dxCursor = this.particles[i].x - this.cursorX;
-			const dyCursor = this.particles[i].y - this.cursorY;
-			const distanceToCursor = Math.sqrt(
-				dxCursor * dxCursor + dyCursor * dyCursor,
-			);
-            if (this.clicked && distanceToCursor < this.maxDistance) {
+            const particleA = this.particles[i];
+            const dxCursor = particleA.x - this.cursorX;
+            const dyCursor = particleA.y - this.cursorY;
+            const distanceToCursorSquared = dxCursor * dxCursor + dyCursor * dyCursor;
+
+            if (this.clicked && distanceToCursorSquared < this.maxDistanceSquared) {
                 const angle = Math.atan2(dyCursor, dxCursor);
-                this.particles[i].speedX = Math.cos(angle) * 1.5;
-                this.particles[i].speedY = Math.sin(angle) * 1.5;
+                particleA.speedX = Math.cos(angle) * 1.5;
+                particleA.speedY = Math.sin(angle) * 1.5;
             }
-			// If the particle is close to the cursor, draw a line
-			if (distanceToCursor < this.maxDistance) {
-				for (let j = i + 1; j < this.particles.length; j++) {
-					const dx = this.particles[i].x - this.particles[j].x;
-					const dy = this.particles[i].y - this.particles[j].y;
-					const distance = Math.sqrt(dx * dx + dy * dy);
-					if (distance < this.maxDistance) {
-						let opacity = Math.min(1, 1 - distanceToCursor / this.maxDistance);
 
-						opacity = Math.min(
-							1,
-							opacity +
-								(this.maxDistance - distanceToCursor) / this.maxDistance,
-						);
+            if (distanceToCursorSquared < this.maxDistanceSquared) {
+                for (let j = i + 1; j < this.particles.length; j++) {
+                    const particleB = this.particles[j];
+                    const dx = particleA.x - particleB.x;
+                    const dy = particleA.y - particleB.y;
+                    const distanceSquared = dx * dx + dy * dy;
 
-						this.ctx.strokeStyle = `rgba(239, 167, 239, ${opacity})`;
-						this.ctx.lineWidth = 0.5;
-						this.ctx.beginPath();
-						this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
-						this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
-						this.ctx.stroke();
-					}
-				}
-			}
-		}
-	}
+                    if (distanceSquared < this.maxDistanceSquared) {
+                        const opacity = 1 - distanceSquared / this.maxDistanceSquared;
+                        this.ctx.strokeStyle = `rgba(239, 167, 239, ${opacity})`;
+                        this.ctx.lineWidth = 0.5;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(particleA.x, particleA.y);
+                        this.ctx.lineTo(particleB.x, particleB.y);
+                        this.ctx.stroke();
+                    }
+                }
+            }
+        }
+    }
 }
