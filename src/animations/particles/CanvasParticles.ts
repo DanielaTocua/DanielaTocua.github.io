@@ -1,4 +1,5 @@
 import { Particle } from "./Particle";
+import { ExpandingWave } from "./ExpandingWave";
 
 export class CanvasParticles {
 	canvas: HTMLCanvasElement;
@@ -11,6 +12,7 @@ export class CanvasParticles {
 	cursorY = 0;
 	clicked = false;
     smallScreen = window.innerWidth < 600;
+    wave: ExpandingWave | null = null;
 
 	/** The constructor initializes the canvas and particles, and sets up the resize event listener. */
 	constructor(canvas: HTMLCanvasElement) {
@@ -34,8 +36,10 @@ export class CanvasParticles {
 			});
 
 			// Listen for mouse click
-			this.canvas.addEventListener("click", () => {
+			this.canvas.addEventListener("click", (event) => {
 				this.clicked = true;
+                this.wave = new ExpandingWave(event.clientX, event.clientY, 50, 2, this.ctx);
+
 			});
 		}
 	}
@@ -98,6 +102,11 @@ export class CanvasParticles {
 					particle.update(this.ctx);
 					particle.draw(this.ctx);
 				});
+
+                if (this.wave) {
+                    this.wave.update();
+                    this.wave.draw();
+                }
                 
                 if (!this.smallScreen){
                     this.drawLines();
@@ -120,7 +129,7 @@ export class CanvasParticles {
 			const dyCursor = particleA.y - this.cursorY;
 			const distanceToCursorSquared = dxCursor * dxCursor + dyCursor * dyCursor;
 
-			if (this.clicked && distanceToCursorSquared < this.maxDistanceSquared) {
+			if (this.clicked && distanceToCursorSquared < this.maxDistanceSquared&& i < this.numParticles) {
 				const angle = Math.atan2(dyCursor, dxCursor);
 				particleA.speedX = Math.cos(angle) * 1.5;
 				particleA.speedY = Math.sin(angle) * 1.5;
