@@ -1,3 +1,5 @@
+import { networkDistance, networkDistanceSquared } from "./Constants";
+
 export class Particle {
 	x: number;
 	y: number;
@@ -22,10 +24,35 @@ export class Particle {
 		if (this.y <= 0 || this.y >= ctx.canvas.height) this.speedY *= -1;
 	}
 
-	draw(ctx: CanvasRenderingContext2D): void {
-		ctx.fillStyle = "rgb(216, 149, 248)";
+	calculateDistanceToCursor(cursorX: number, cursorY: number): number {
+		const dx = this.x - cursorX;	
+		const dy = this.y - cursorY;
+		return Math.sqrt(dx * dx + dy * dy);
+	}
+
+	draw(ctx: CanvasRenderingContext2D, opacity: number): void {
+		ctx.fillStyle = `rgba(216, 149, 248, ${opacity})`;
 		ctx.beginPath();
 		ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
 		ctx.fill();
 	}
+
+
+	drawLines(ctx: CanvasRenderingContext2D, particles: Particle[], distanceToCursor:number): void {
+		particles.forEach((particle) => {
+
+			const dx = this.x - particle.x;
+			const dy = this.y - particle.y;
+			const distanceSquared = dx * dx + dy * dy;
+			if (distanceSquared < networkDistanceSquared) {
+				ctx.strokeStyle = `rgba(216, 149, 248, ${1 - distanceToCursor / networkDistance})`;
+				ctx.lineWidth = 0.5;
+				ctx.beginPath();
+				ctx.moveTo(this.x, this.y);
+				ctx.lineTo(particle.x, particle.y);
+				ctx.stroke();
+			}
+		});
+	}
+
 }

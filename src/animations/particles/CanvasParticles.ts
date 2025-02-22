@@ -1,5 +1,6 @@
 import { Particle } from "./Particle";
 import { ExpandingWave } from "./ExpandingWave";
+import { affectedByWaveDistance, networkDistance, visibilityDistance } from "./Constants";
 
 export class CanvasParticles {
 	canvas: HTMLCanvasElement;
@@ -7,7 +8,6 @@ export class CanvasParticles {
 	particles: Particle[] = [];
 	cursorParticle: Particle | null = null;
 	numParticles: number; // Number of particles
-	maxDistanceSquared = 100 * 100; // Maximum distance for drawing lines
 	cursorX = 0;
 	cursorY = 0;
 	clicked = false;
@@ -21,27 +21,22 @@ export class CanvasParticles {
 		this.numParticles = this.calculateNumParticles();
 		this.init();
 		this.animate();
+		// Listen for mouse movement
+		this.canvas.addEventListener("mousemove", (event) => {
+			this.cursorX = event.clientX;
+			this.cursorY = event.clientY;
+			if (this.cursorParticle) {
+				this.cursorParticle.x = this.cursorX;
+				this.cursorParticle.y = this.cursorY;
+			}
+		});
 
-		// Only add mouse event listeners for larger screens
-		if (!this.smallScreen) {
+		// Listen for mouse click
+		this.canvas.addEventListener("click", (event) => {
+			this.clicked = true;
+			this.wave = new ExpandingWave(event.clientX, event.clientY, 50, 2, this.ctx);
 
-			// Listen for mouse movement
-			this.canvas.addEventListener("mousemove", (event) => {
-				this.cursorX = event.clientX;
-				this.cursorY = event.clientY;
-				if (this.cursorParticle) {
-					this.cursorParticle.x = this.cursorX;
-					this.cursorParticle.y = this.cursorY;
-				}
-			});
-
-			// Listen for mouse click
-			this.canvas.addEventListener("click", (event) => {
-				this.clicked = true;
-                this.wave = new ExpandingWave(event.clientX, event.clientY, 50, 2, this.ctx);
-
-			});
-		}
+		});
 	}
 
 	/** Calculates the number of particles based on screen size. */
@@ -73,7 +68,6 @@ export class CanvasParticles {
 		for (let i = 0; i < this.numParticles; i++) {
 			this.particles.push(new Particle(this.ctx));
 		}
-		this.particles.push(this.cursorParticle);
 
 		window.addEventListener("resize", () => this.resizeCanvas());
 	}
@@ -95,24 +89,27 @@ export class CanvasParticles {
 		let lastTime = 0;
 
 		const loop = (currentTime: number) => {
+			
 			if (currentTime - lastTime >= interval) {
-				this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+				this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clear canvas
 
-				this.particles.forEach((particle) => {
-					particle.update(this.ctx);
-					particle.draw(this.ctx);
-				});
-
-                if (this.wave) {
-                    this.wave.update();
-                    this.wave.draw();
-                }
-                
-                if (!this.smallScreen){
-                    this.drawLines();
-                }
-				this.clicked = false;
-
+				if (this.smallScreen) {
+					this.particles.forEach((particle) => {
+						particle.update(this.ctx);
+						particle.draw(this.ctx, 0.8);
+					});
+					
+				} else {
+					this.cursorParticle!.draw(this.ctx, 1); 
+					this.cursorParticle!.drawLines(this.ctx, this.particles, 0); 
+					this.particles.forEach((particle) => this.animateParticle(particle));				
+					if (this.wave) {
+						this.wave.update();
+						this.wave.draw();
+					}
+					this.clicked = false;
+				}
+				
 				lastTime = currentTime; // Update the last render time
 			}
 			requestAnimationFrame(loop);
@@ -121,38 +118,23 @@ export class CanvasParticles {
 		requestAnimationFrame(loop);
 	}
 
-	/** Draws lines between nearby particles. */
-	drawLines(): void {
-		for (let i = 0; i < this.particles.length; i++) {
-			const particleA = this.particles[i];
-			const dxCursor = particleA.x - this.cursorX;
-			const dyCursor = particleA.y - this.cursorY;
-			const distanceToCursorSquared = dxCursor * dxCursor + dyCursor * dyCursor;
-
-			if (this.clicked && distanceToCursorSquared < this.maxDistanceSquared&& i < this.numParticles) {
-				const angle = Math.atan2(dyCursor, dxCursor);
-				particleA.speedX = Math.cos(angle) * 1.5;
-				particleA.speedY = Math.sin(angle) * 1.5;
+	animateParticle(particle:Particle):void{
+		{					
+			particle.update(this.ctx);
+			const distanceToCursor = particle.calculateDistanceToCursor(this.cursorX, this.cursorY); 
+			if (this.clicked && distanceToCursor < affectedByWaveDistance) {
+				//Send away from cursor
+				const angle = Math.atan2(particle.y - this.cursorY,particle.x - this.cursorX);
+				particle.speedX = Math.cos(angle) * 1.5;
+				particle.speedY = Math.sin(angle) * 1.5;
+			}
+			particle.draw(this.ctx, Math.max(0, 1 - distanceToCursor / visibilityDistance));
+			// Draw lines between particles
+			if (distanceToCursor < networkDistance) {
+				particle.drawLines(this.ctx, this.particles, distanceToCursor);
 			}
 
-			if (distanceToCursorSquared < this.maxDistanceSquared) {
-				for (let j = i + 1; j < this.particles.length; j++) {
-					const particleB = this.particles[j];
-					const dx = particleA.x - particleB.x;
-					const dy = particleA.y - particleB.y;
-					const distanceSquared = dx * dx + dy * dy;
 
-					if (distanceSquared < this.maxDistanceSquared) {
-						const opacity = 1 - distanceSquared / this.maxDistanceSquared;
-						this.ctx.strokeStyle = `rgba(239, 167, 239, ${opacity})`;
-						this.ctx.lineWidth = 0.5;
-						this.ctx.beginPath();
-						this.ctx.moveTo(particleA.x, particleA.y);
-						this.ctx.lineTo(particleB.x, particleB.y);
-						this.ctx.stroke();
-					}
-				}
-			}
 		}
 	}
 }
