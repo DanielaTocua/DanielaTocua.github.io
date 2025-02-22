@@ -13,6 +13,7 @@ export class CanvasParticles {
 	clicked = false;
     smallScreen = window.innerWidth < 600;
     wave: ExpandingWave | null = null;
+	boldText: HTMLElement | null = null;
 
 	/** The constructor initializes the canvas and particles, and sets up the resize event listener. */
 	constructor(canvas: HTMLCanvasElement) {
@@ -21,14 +22,17 @@ export class CanvasParticles {
 		this.numParticles = this.calculateNumParticles();
 		this.init();
 		this.animate();
+		this.boldText = document.querySelector('.bold-canvas-text');
 		// Listen for mouse movement
-		this.canvas.addEventListener("mousemove", (event) => {
-			this.cursorX = event.clientX;
-			this.cursorY = event.clientY;
+		this.canvas.addEventListener("mousemove", (evt) => {
+			const rect = this.canvas.getBoundingClientRect();
+			this.cursorX =  ( evt.clientX - rect.left ) / ( rect.right - rect.left ) * this.canvas.width 
+			this.cursorY =  ( evt.clientY - rect.top ) / ( rect.bottom - rect.top ) * this.canvas.height 
 			if (this.cursorParticle) {
 				this.cursorParticle.x = this.cursorX;
 				this.cursorParticle.y = this.cursorY;
 			}
+			this.updateBoldTextGradient();
 		});
 
 		// Listen for mouse click
@@ -136,5 +140,17 @@ export class CanvasParticles {
 
 
 		}
-	}
+		}
+		/** Updates the text gradient based on the cursor position. */
+		updateBoldTextGradient(): void {
+			if (this.boldText) {
+				const rect = this.boldText.getBoundingClientRect();
+				const x = (this.cursorX - rect.left) / rect.width * 2 ;
+				const y = (this.cursorY - rect.top) / rect.height * 2 ;
+				this.boldText.style.background = `radial-gradient(circle at ${x * 100}% ${y * 100}%,rgb(255, 0, 187),  #da75ff)`;
+				this.boldText.style.backgroundClip = "text";
+
+			}
+		}
+		
 }
